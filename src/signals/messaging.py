@@ -61,7 +61,7 @@ def _save_snapshot(path: Path, content: str, content_hash: str):
 # Fragments matching any of these are cookie/consent boilerplate, not signal.
 # Two groups: (1) obvious consent-UI terms, (2) generic IAB/TCF cookie-category
 # descriptions that contain neither "cookie" nor "consent" and so slip through
-# the obvious terms — these leaked into a real OneTrust alert.
+# the obvious terms — IAB/TCF boilerplate that consent CMPs inject into pages.
 _NOISE_MARKERS = (
     # group 1 — consent UI chrome
     "cookie", "consent", "privacy preference", "manage preferences",

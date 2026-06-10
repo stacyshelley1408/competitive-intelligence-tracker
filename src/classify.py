@@ -30,7 +30,7 @@ KEYWORD_RULES = {
     "threat_intel": ["threat", "malware", "ransomware", "phishing", "vulnerability", "cve", "exploit", "attack", "breach", "advisory"],
     "press": ["award", "recognized", "gartner", "forrester", "idc", "analyst", "magic quadrant", "wave", "peer insights", "named a"],
     "review": ["review", "rating", "stars", "feedback", "g2", "capterra", "trustradius", "gartner peer"],
-    "community": ["reddit", "forum", "community", "r/msp", "r/sysadmin"],
+    "community": ["reddit", "forum", "community", "r/technology", "r/business"],
     "messaging": ["messaging", "positioning", "homepage", "tagline", "value prop", "headline", "rebrand"],
 }
 
@@ -85,7 +85,7 @@ def _classify_with_anthropic(signal_type: str, text: str, watch_keywords: list[s
     categories_str = ", ".join(CATEGORIES)
     keywords_str = ", ".join(watch_keywords) if watch_keywords else "none"
 
-    prompt = f"""You are a competitive intelligence analyst. Classify the following signal from a B2B cybersecurity company tracker.
+    prompt = f"""You are a competitive intelligence analyst. Classify the following signal from a B2B enterprise software company tracker.
 
 Signal type: {signal_type}
 Watch keywords (high-priority terms for this company): {keywords_str}

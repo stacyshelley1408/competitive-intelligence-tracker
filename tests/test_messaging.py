@@ -13,7 +13,6 @@ from signals.messaging import _diff_text, _is_noise  # noqa: E402
 
 class TestIsNoise(unittest.TestCase):
     def test_cookie_consent_boilerplate_is_noise(self):
-        # Fragments lifted verbatim from a real false-positive OneTrust alert.
         noisy = [
             "Cookie Notice Accept allEssential onlyCustomize Settings Opt-Out Request Honored",
             "User ID: 35da8ea0-fc10-45dc-ac01-569a64dfc770 Manage Consent Preferences",
@@ -26,7 +25,7 @@ class TestIsNoise(unittest.TestCase):
 
     def test_real_signal_is_not_noise(self):
         signal = [
-            "Archer launches new AI governance module for continuous compliance",
+            "Acme Corp launches new AI module for enterprise customers",
             "Now trusted by 14,000 customers worldwide",
             "Introducing usage-based pricing for mid-market teams",
         ]
@@ -37,8 +36,8 @@ class TestIsNoise(unittest.TestCase):
         self.assertTrue(_is_noise("ACCEPT ALL cookies"))
 
     def test_iab_category_descriptions_are_noise(self):
-        # Verbatim fragments that leaked into a real OneTrust alert — note none
-        # of these contain the words "cookie" or "consent".
+        # IAB/TCF cookie-category description boilerplate — these contain neither
+        # "cookie" nor "consent" but are still consent-UI noise.
         leaked = [
             "Click on the different category headings to learn more and change our default settings",
             "The information does not usually identify you directly, but it can give you a more personalized web experience",
@@ -54,14 +53,14 @@ class TestIsNoise(unittest.TestCase):
 
 class TestDiffText(unittest.TestCase):
     def test_noise_only_change_yields_empty_diff(self):
-        old = "Welcome to OneTrust. Trusted by 14000 customers."
-        new = ("Welcome to OneTrust. Trusted by 14000 customers. "
+        old = "Welcome to Acme Corp. Trusted by 14000 customers."
+        new = ("Welcome to Acme Corp. Trusted by 14000 customers. "
                "Cookie Notice Accept all. User ID: abc-123 Manage Consent Preferences.")
         self.assertEqual(_diff_text(old, new), "")
 
     def test_real_change_survives_alongside_noise(self):
-        old = "Welcome to OneTrust. Trusted by 14000 customers."
-        new = ("Welcome to OneTrust. Trusted by 14000 customers. "
+        old = "Welcome to Acme Corp. Trusted by 14000 customers."
+        new = ("Welcome to Acme Corp. Trusted by 14000 customers. "
                "Cookie Notice Accept all. User ID: abc-123. "
                "We added a new pricing tier")
         result = _diff_text(old, new)

@@ -1,0 +1,154 @@
+# CI Tracker — Company Configuration
+#
+# This file controls what you monitor and how signals are classified and alerted.
+# Edit this file to add your target company and competitors.
+#
+# Signal types:
+#   messaging_diffs  — detects changes to monitored web pages (requires `pages` list)
+#   job_postings     — tracks new job openings (requires `careers_url`)
+#   news             — monitors RSS/Atom feeds (requires `news_feeds` list)
+#   reviews          — scrapes G2, Gartner, Capterra, TrustRadius, PeerSpot, Spiceworks
+#   reddit           — searches subreddits for company mentions
+#
+# Alert levels:
+#   daily   — sends an immediate alert email when a new event clears the threshold
+#   weekly  — batched into the Monday morning HTML digest only
+#
+# Significance scores (set by the AI classifier or keyword rules):
+#   5 — Major move, act today (funding, acquisition, product launch, exec departure)
+#   4 — Significant (messaging shift, notable hire, new integration, partnership)
+#   3 — Moderate (minor page change, new review, job posting)
+#   2 — Low signal, logged only
+#   1 — Noise, ignored
+#
+# Only events at or above `significance_threshold` trigger alert emails.
+
+defaults:
+  active: true
+  significance_threshold: 4   # raise to 5 to get only major moves; lower to 3 for more noise
+  watch_keywords: []
+  signals:
+    messaging_diffs:
+      alert: weekly
+      include_in_digest: true
+    job_postings:
+      alert: weekly
+      include_in_digest: true
+      filters:
+        departments: []   # leave empty to track all departments
+        seniority: []     # e.g. [director, vp, head, chief]
+    news:
+      alert: daily
+      include_in_digest: true
+    reviews:
+      alert: weekly
+      include_in_digest: true
+      platforms:
+        - g2
+        - gartner_peer_insights
+        - capterra
+        - trustradius
+        - peerspot
+        - spiceworks
+    reddit:
+      alert: daily
+      include_in_digest: true
+      subreddits:
+        - sysadmin
+        - cybersecurity
+        - networking
+        - devops
+      search_terms: []    # additional search terms beyond company name
+
+companies:
+  # --- PRIMARY COMPANY ---
+  # The company you are tracking most closely (your employer, a key account, etc.)
+  # Lower threshold and more pages = more signal.
+  - name: Acme Corp
+    base_url: https://www.acmecorp.com
+    active: true
+    significance_threshold: 3      # lower bar — catch more signals for your primary target
+    watch_keywords:
+      - funding
+      - acquisition
+      - pricing
+      - launch
+      - AI
+    signals:
+      job_postings:
+        alert: daily                # immediate alert on new hires at this company
+        filters:
+          departments:
+            - marketing
+            - product
+            - engineering
+            - sales
+          seniority:
+            - director
+            - vp
+            - head
+            - chief
+      reddit:
+        search_terms:
+          - "Acme Corp"
+          - "Acme vs"
+          - "acmecorp"
+      reviews:
+        platforms:
+          - g2
+          - gartner_peer_insights
+          - capterra
+          - trustradius
+    # Pages to diff daily (alert: daily) or weekly (alert: weekly, or omit for default)
+    pages:
+      - url: /                      # homepage — catches brand/positioning shifts
+      - url: /product               # core product page
+      - url: /pricing               # pricing page — high signal
+      - url: /newsroom              # press/news page
+      - url: /blog
+        alert: weekly
+      - url: /about
+        alert: weekly
+      - url: /customers
+        alert: weekly
+    careers_url: https://www.acmecorp.com/careers
+    news_feeds:
+      - https://www.acmecorp.com/blog/feed/    # replace with actual RSS/Atom URL
+    review_urls:
+      g2: https://www.g2.com/products/acme-corp/reviews
+      gartner_peer_insights: https://www.gartner.com/reviews/market/your-market/vendor/acme
+      capterra: https://www.capterra.com/p/acme-corp/
+      trustradius: https://www.trustradius.com/products/acme-corp/reviews
+
+  # --- COMPETITOR ---
+  # Add one entry per competitor. Minimal config is fine — it inherits all defaults above.
+  - name: Competitor Inc
+    base_url: https://www.competitorinc.com
+    active: true
+    significance_threshold: 4
+    watch_keywords:
+      - funding
+      - acquisition
+      - pricing
+      - AI
+    signals:
+      reviews:
+        platforms:
+          - g2
+          - gartner_peer_insights
+          - trustradius
+    pages:
+      - url: /
+      - url: /product
+      - url: /pricing
+        alert: daily              # pricing page changes are high priority
+    careers_url: https://www.competitorinc.com/careers
+    news_feeds:
+      - https://www.competitorinc.com/blog/feed/
+    review_urls:
+      g2: https://www.g2.com/products/competitor-inc/reviews
+      gartner_peer_insights: https://www.gartner.com/reviews/market/your-market/vendor/competitor-inc
+      trustradius: https://www.trustradius.com/products/competitor-inc/reviews
+
+  # Add more competitors by copying the block above.
+  # Set `active: false` to pause tracking without removing the config.
